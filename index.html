@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Devs vs Bugs - Nivel 1</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game-container">
+    <header id="hud">
+      <div class="stat">Servidor: <span id="base-health">100</span>% 💻</div>
+      <div class="stat">Nivel: <span id="wave-number">1</span> 🌐</div>
+      <div class="stat">Café: <span id="magic-energy">5</span> ☕</div>
+    </header>
+
+    <main id="lanes-container">
+      <div class="lane" id="lane-1"></div>
+      <div class="lane" id="lane-2"></div>
+      <div class="lane" id="lane-3"></div>
+    </main>
+
+    <footer id="selection-bar">
+      <button class="guardian-btn" data-type="html">
+        <span class="btn-name">HTML</span>
+        <span class="cost">3 ☕</span>
+      </button>
+
+      <button class="guardian-btn" data-type="css">
+        <span class="btn-name">CSS</span>
+        <span class="cost">4 ☕</span>
+      </button>
+
+      <button class="guardian-btn" data-type="js">
+        <span class="btn-name">JS</span>
+        <span class="cost">5 ☕</span>
+      </button>
+    </footer>
+
+    <div id="trivia-modal" class="oculto">
+      <div class="trivia-content">
+        <h2>¡Apareció un Bug Educativo!</h2>
+        <p id="pregunta-texto">¿Pregunta?</p>
+        <div id="respuestas-container">
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+2. styles.css (Diseño Responsive)
+Aquí está la magia para celulares. Usamos aspect-ratio y porcentajes para que todo se estire o se encoja proporcionalmente.
+
+CSS
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #121212;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* CONTENEDOR RESPONSIVE */
+#game-container {
+  width: 100vw;
+  max-width: 1000px; /* Tamaño máximo en PC */
+  aspect-ratio: 16 / 9; /* Mantiene la proporción de pantalla horizontal */
+  background-color: #2c3e50; /* Fondo temporal oscuro */
+  position: relative;
+  border: 4px solid #34495e;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#hud {
+  display: flex;
+  justify-content: space-around;
+  padding: 2% 0;
+  background: rgba(0, 0, 0, 0.8);
+  font-weight: bold;
+  font-size: clamp(1rem, 2.5vw, 1.5rem); /* Texto que se adapta al tamaño */
+  z-index: 100;
+  border-bottom: 2px solid #27ae60;
+}
+
+#lanes-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lane {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+}
+
+.lane.selectable:hover {
+  background: rgba(46, 204, 113, 0.1);
+  cursor: pointer;
+}
+
+#selection-bar {
+  display: flex;
+  justify-content: center;
+  gap: 2%;
+  padding: 2%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 110;
+}
+
+.guardian-btn {
+  background: #34495e;
+  border: 2px solid #7f8c8d;
+  border-radius: 8px;
+  width: 15%;
+  aspect-ratio: 1 / 1; /* Botones cuadrados */
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: transform 0.2s;
+}
+
+.guardian-btn.selected {
+  border-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.3);
+  transform: scale(1.1);
+}
+
+.guardian-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cost { font-size: clamp(0.8rem, 1.5vw, 1rem); color: #f1c40f; margin-top: 5px; }
+.btn-name { font-weight: bold; font-size: clamp(0.9rem, 1.8vw, 1.2rem); }
+
+/* ENTIDADES (Usamos porcentajes para la responsividad) */
+.entidad {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8%; /* Ancho relativo a la pantalla */
+  height: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imagen-personaje {
+  width: 100%;
+  height: 100%;
+  background-color: #3498db; /* Cuadro azul temporal para aliados */
+  border-radius: 10px;
+}
+.enemigo-visual { background-color: #e74c3c; } /* Cuadro rojo temporal para enemigos */
+
+.health-bar-container {
+  width: 100%;
+  height: 10px;
+  background: #c0392b;
+  border: 1px solid #000;
+  position: absolute;
+  top: -15px;
+}
+.health-bar-fill { height: 100%; background: #2ecc71; width: 100%; }
+
+/* MODAL TRIVIA */
+#trivia-modal {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#trivia-modal.oculto { display: none; }
+
+.trivia-content {
+  background: #2c3e50;
+  padding: 30px;
+  border-radius: 15px;
+  border: 3px solid #f1c40f;
+  text-align: center;
+  width: 80%;
+}
+.trivia-content h2 { color: #f1c40f; margin-bottom: 15px; }
+.trivia-content p { font-size: 1.2rem; margin-bottom: 20px; }
+
+.btn-respuesta {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  background: #34495e;
+  color: white;
+  border: 2px solid #7f8c8d;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.btn-respuesta:hover { background: #2ecc71; border-color: white; }
