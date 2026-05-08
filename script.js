@@ -1,16 +1,16 @@
-// --- CONFIGURACIÓN DE TROPAS ---
+// --- CONFIGURACIÓN ---
 const dicG = {
-    tanque:  { costo: 3, vida: 300, dano: 10, vel: 0.5 },
-    arquero: { costo: 4, vida: 100, dano: 25, vel: 1.0 },
-    mago:    { costo: 5, vida: 100, dano: 40, vel: 0.8 },
-    ninja:   { costo: 6, vida: 150, dano: 60, vel: 1.5 } 
+    tanque:  { costo: 3, vida: 300, dano: 12, vel: 0.6 },
+    arquero: { costo: 4, vida: 110, dano: 28, vel: 1.1 },
+    mago:    { costo: 5, vida: 110, dano: 45, vel: 0.9 },
+    ninja:   { costo: 6, vida: 160, dano: 65, vel: 1.6 } 
 };
 
 const preguntasNivel1 = [
-    { q: 'Un duende te ofrece un programa llamado "Hack_Oro_Infinito.exe", pero te pide apagar los escudos de tu servidor para instalarlo. ¿Qué haces?', opciones: ["¡Lo instalo rápido, quiero oro!", "Lo rechazo, es una trampa.", "Lo instalo, pero solo un minuto."], correcta: 1, mensaje: 'Los programas piratas o "hacks" gratuitos suelen ocultar virus Troyanos.' },
+    { q: 'Un duende te ofrece un programa llamado "Hack_Oro_Infinito.exe", pero te pide apagar los escudos de tu servidor para instalarlo. ¿Qué haces?', opciones: ["¡Lo instalo rápido, quiero oro!", "Lo rechazo, es una trampa.", "Lo instalo, pero solo un minuto."], correcta: 1, mensaje: 'Los programas piratas suelen ocultar virus Troyanos.' },
     { q: 'Un guardia sin uniforme te pide la contraseña de tu base argumentando que necesita "revisar el sistema". ¿Qué haces?', opciones: ["¡No! Eres un impostor.", "Se la doy, parece urgente.", "Se la doy, pero luego la cambio."], correcta: 0, mensaje: 'El soporte técnico real nunca te pide tu contraseña.' },
-    { q: 'Recibes un mensaje de un mago desconocido prometiendo "Poder Absoluto" si haces clic en su portal mágico. ¿Qué haces?', opciones: ["¡Cruzo el portal rápido!", "Lo ignoro, es una estafa.", "Mando a mis tropas primero."], correcta: 1, mensaje: 'Nunca hagas clic en enlaces desconocidos con promesas falsas o regalos.' },
-    { q: 'Te llega un pergamino mágico de un remitente desconocido que dice "Ábreme". ¿Qué haces?', opciones: ["Lo abro para ver qué dice.", "Lo destruyo, es un virus.", "Lo guardo para leerlo luego."], correcta: 1, mensaje: 'Archivos adjuntos peligrosos. Muchos virus se disfrazan así.' }
+    { q: 'Recibes un mensaje de un mago desconocido prometiendo "Poder Absoluto" si haces clic en su portal mágico. ¿Qué haces?', opciones: ["¡Cruzo el portal rápido!", "Lo ignoro, es una estafa.", "Mando a mis tropas primero."], correcta: 1, mensaje: 'Nunca hagas clic en enlaces desconocidos.' },
+    { q: 'Te llega un pergamino mágico de un remitente desconocido que dice "Ábreme". ¿Qué haces?', opciones: ["Lo abro para ver qué dice.", "Lo destruyo, es un virus.", "Lo guardo para leerlo luego."], correcta: 1, mensaje: 'Los virus suelen disfrazarse de archivos adjuntos.' }
 ];
 
 let baseHealth = 100, magicEnergy = 10, frames = 0, juegoPausado = true, juegoIniciado = false;
@@ -62,7 +62,7 @@ setTimeout(() => {
 
 botones.forEach(btn => {
     btn.addEventListener('click', () => {
-        if (btn.classList.contains('disabled') || juegoPausado || !juegoIniciado) return;
+        if (btn.classList.contains('disabled') || juegoPausado) return;
         botones.forEach(b => b.classList.remove('selected'));
         seleccionado = btn.getAttribute('data-type');
         btn.classList.add('selected');
@@ -140,29 +140,26 @@ function procesarRespuesta(esCorrecta) {
     modalTrivia.classList.add('oculto'); btnCofre.classList.add('oculto'); 
     if (esCorrecta) {
         jefePreguntasCorrectas++;
-        if (jefeActivo) {
-            jefeActivo.vida -= (jefeActivo.vidaMax / 3);
-            jefeActivo.visual.querySelector('.health-bar-fill').style.width = Math.max(0, (jefeActivo.vida / jefeActivo.vidaMax) * 100) + "%";
-        }
+        if (jefeActivo) jefeActivo.vida -= (jefeActivo.vidaMax / 3);
         if (jefePreguntasCorrectas >= 3) {
             if(jefeActivo) jefeActivo.vida = 0; 
-            mostrarAlerta("✨ ¡Impacto Crítico!", "¡Correcto! " + preguntaActualObj.mensaje + " ¡Has destruido al troyano!", false, () => {
+            mostrarAlerta("✨ ¡Impacto Crítico!", "¡Correcto! " + preguntaActualObj.mensaje, false, () => {
                 juegoPausado = false; requestAnimationFrame(gameLoop);
             });
         } else {
-            mostrarAlerta("✅ ¡Ataque Exitoso!", "¡Correcto! " + preguntaActualObj.mensaje + ` (Progreso: ${jefePreguntasCorrectas}/3).`, false, () => {
+            mostrarAlerta("✅ ¡Ataque Exitoso!", "¡Correcto! (Progreso: " + jefePreguntasCorrectas + "/3).", false, () => {
                 juegoPausado = false; requestAnimationFrame(gameLoop);
-                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 4000);
+                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 3000);
             });
         }
     } else {
         jefePreguntasIncorrectas++;
         if (jefePreguntasIncorrectas >= 2) {
-            mostrarAlerta("💥 ¡Brecha Crítica!", "Los Troyanos tomaron el control total.", true, () => { location.reload(); });
+            mostrarAlerta("💥 ¡Brecha Crítica!", "Los Troyanos vencieron.", true, () => location.reload());
         } else {
-            mostrarAlerta("❌ ¡Ataque Fallido!", "Respuesta incorrecta. El Jefe bloqueó el ataque.", true, () => {
+            mostrarAlerta("❌ ¡Ataque Fallido!", "Respuesta incorrecta.", true, () => {
                 juegoPausado = false; requestAnimationFrame(gameLoop);
-                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 4000);
+                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 3000);
             });
         }
     }
@@ -177,16 +174,15 @@ function gameLoop() {
 
     [...guardianesActivos, ...enemigosActivos].forEach(ent => {
         ent.visual.style.left = (ent.x / ANCHO_VIRTUAL * 100) + '%';
+        const bar = ent.visual.querySelector('.health-bar-fill');
+        if (bar) bar.style.width = Math.max(0, (ent.vida/ent.vidaMax)*100) + "%";
     });
 
     guardianesActivos.forEach((g, i) => {
         let enC = false;
         enemigosActivos.forEach(e => {
-            // AJUSTE: Distancia de colisión aumentada para personajes más grandes
-            if (g.lane === e.lane && Math.abs(g.x - e.x) < 70) {
+            if (g.lane === e.lane && Math.abs(g.x - e.x) < 65) {
                 enC = true; e.vida -= g.dano / 60; g.vida -= e.dano / 60;
-                e.visual.querySelector('.health-bar-fill').style.width = (e.vida/e.vidaMax)*100 + "%";
-                g.visual.querySelector('.health-bar-fill').style.width = (g.vida/g.vidaMax)*100 + "%";
             }
         });
         if (!enC) g.x += g.vel;
@@ -195,7 +191,7 @@ function gameLoop() {
 
     for (let i = enemigosActivos.length - 1; i >= 0; i--) {
         let e = enemigosActivos[i], enC = false;
-        guardianesActivos.forEach(g => { if (e.lane === g.lane && Math.abs(e.x - g.x) < 70) enC = true; });
+        guardianesActivos.forEach(g => { if (e.lane === g.lane && Math.abs(e.x - g.x) < 65) enC = true; });
         if (!enC) e.x -= e.vel;
         if (e.x <= LIMITE_BASE) { baseHealth -= 0.2; actualizarInterfaz(); e.vida = 0; }
         if (e.vida <= 0) {
