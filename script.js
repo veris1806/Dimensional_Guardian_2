@@ -1,4 +1,4 @@
-// --- CONFIGURACIÓN DE TROPAS (Nuevos nombres IT) ---
+// --- CONFIGURACIÓN DE TROPAS ---
 const dicG = {
     tanque:  { costo: 3, vida: 300, dano: 10, vel: 0.5 },
     arquero: { costo: 4, vida: 100, dano: 25, vel: 1.0 },
@@ -6,19 +6,19 @@ const dicG = {
     ninja:   { costo: 6, vida: 150, dano: 60, vel: 1.5 } 
 };
 
-// --- PREGUNTAS (Adaptadas a Ciberseguridad/IT) ---
+// --- PREGUNTAS (Con retroalimentación educativa) ---
 const preguntasNivel1 = [
-    { q: "En CSS, ¿cómo se selecciona un ID?", opciones: [".nombre", "*nombre", "#nombre"], correcta: 2 },
-    { q: "Un duende te ofrece un mapa, pero pide la contraseña de tu castillo...", opciones: ["Se la doy rápido", "Le doy una contraseña falsa", "Me niego, es phishing"], correcta: 2 },
-    { q: "Te llega un correo urgente de 'Net-flix-Soporte.xyz' pidiendo tu tarjeta...", opciones: ["Es una estafa, lo borro", "Actualizo mis datos", "Lo reenvío a mis amigos"], correcta: 0 },
-    { q: "Encuentras un pergamino que dice 'Instalar_Hechizos.exe' tirado...", opciones: ["Lo abro, ¡magia!", "Lo quemo, es malware", "Se lo leo a mis tropas"], correcta: 1 }
+    { q: 'Un duende te ofrece un programa llamado "Hack_Oro_Infinito.exe", pero te pide apagar los escudos de tu servidor para instalarlo. ¿Qué haces?', opciones: ["¡Lo instalo rápido, quiero oro!", "Lo rechazo, es una trampa.", "Lo instalo, pero solo un minuto."], correcta: 1, mensaje: 'Los programas piratas o "hacks" gratuitos suelen ocultar virus Troyanos.' },
+    { q: 'Un guardia sin uniforme te pide la contraseña de tu base argumentando que necesita "revisar el sistema". ¿Qué haces?', opciones: ["¡No! Eres un impostor.", "Se la doy, parece urgente.", "Se la doy, pero luego la cambio."], correcta: 0, mensaje: 'El soporte técnico real nunca te pide tu contraseña.' },
+    { q: 'Recibes un mensaje de un mago desconocido prometiendo "Poder Absoluto" si haces clic en su portal mágico. ¿Qué haces?', opciones: ["¡Cruzo el portal rápido!", "Lo ignoro, es una estafa.", "Mando a mis tropas primero."], correcta: 1, mensaje: 'Nunca hagas clic en enlaces desconocidos con promesas falsas o regalos.' },
+    { q: 'Te llega un pergamino mágico de un remitente desconocido que dice "Ábreme". ¿Qué haces?', opciones: ["Lo abro para ver qué dice.", "Lo destruyo, es un virus.", "Lo guardo para leerlo luego."], correcta: 1, mensaje: 'Archivos adjuntos peligrosos. Muchos virus se disfrazan así.' }
 ];
 
 // --- VARIABLES GLOBALES ---
 let baseHealth = 100;
 let magicEnergy = 10;
 let frames = 0;
-let juegoPausado = true; // Empieza pausado por la pantalla de título
+let juegoPausado = true; 
 let juegoIniciado = false;
 let seleccionado = null;
 let guardianesActivos = [];
@@ -26,14 +26,12 @@ let enemigosActivos = [];
 let jefeActivo = null; 
 let jefeDerrotado = false;
 const ANCHO_VIRTUAL = 1000;
+const LIMITE_BASE = 120; // 12% del ancho virtual, donde está la "Fortaleza"
 
-// EL TIEMPO DEL JEFE (Ajustado a 20 segs para probar rápido. Ponlo en 3600 para el juego real)
+// EL TIEMPO DEL JEFE (Ajustado a 20 segs para probar. Cambia a 3600 para 1 minuto)
 const TIEMPO_JEFE = 1200; 
 
-// SISTEMA CORTAFUEGOS (Podadoras tácticas)
-let cortafuegos = [true, true, true]; 
-let enemigoEnPuerta = null; 
-let tipoPreguntaActual = ""; 
+let preguntaActualObj = null;
 
 // --- ELEMENTOS DOM ---
 const uiVida = document.getElementById('base-health');
@@ -41,7 +39,6 @@ const uiEnergia = document.getElementById('magic-energy');
 const botones = document.querySelectorAll('.guardian-btn');
 const carriles = document.querySelectorAll('.lane');
 const modalTrivia = document.getElementById('trivia-modal');
-const tituloTrivia = document.getElementById('trivia-titulo');
 const btnCofre = document.getElementById('cofre-btn');
 const pantallaTitulo = document.getElementById('level-title-screen');
 
@@ -59,7 +56,7 @@ function actualizarInterfaz() {
     });
 }
 
-// --- CINEMÁTICA DE INICIO (Intacta) ---
+// --- CINEMÁTICA DE INICIO ---
 setTimeout(() => {
     pantallaTitulo.style.opacity = '0'; 
     setTimeout(() => {
@@ -67,11 +64,11 @@ setTimeout(() => {
         juegoPausado = false;
         juegoIniciado = true;
         actualizarInterfaz();
-        requestAnimationFrame(gameLoop); // Arranca el juego
+        requestAnimationFrame(gameLoop); 
     }, 800);
-}, 3000); // 3 segundos de espera
+}, 3000); 
 
-// --- INVOCACIÓN DE TROPAS (Arreglada) ---
+// --- INVOCACIÓN DE TROPAS ---
 botones.forEach(btn => {
     btn.addEventListener('click', () => {
         if (btn.classList.contains('disabled') || juegoPausado || !juegoIniciado) return;
@@ -93,7 +90,8 @@ carriles.forEach((lane, index) => {
             const personajeObj = {
                 visual: crearVisual(lane, true, false),
                 vida: datos.vida, vidaMax: datos.vida, dano: datos.dano, vel: datos.vel,
-                x: 50, lane: index + 1, esGuardian: true
+                x: LIMITE_BASE, // Nacen justo en el borde de tu base
+                lane: index + 1, esGuardian: true
             };
 
             guardianesActivos.push(personajeObj);
@@ -136,95 +134,68 @@ function spawnEnemigo(esJefe = false) {
     
     if (esJefe) {
         jefeActivo = enemigoObj;
-        btnCofre.classList.remove('oculto');
+        btnCofre.classList.remove('oculto'); // Activa el cofre de trivia
     }
 }
 
-// --- SISTEMA DE PREGUNTAS (Cofre y Cortafuegos) ---
-function abrirModalPregunta(tipo) {
-    tipoPreguntaActual = tipo;
-    juegoPausado = true; // PAUSA EL JUEGO
+// --- SISTEMA DE TRIVIA (Solo Cofre) ---
+function abrirModalPregunta() {
+    juegoPausado = true; 
     modalTrivia.classList.remove('oculto');
     
-    if(tipo === 'cofre') {
-        tituloTrivia.textContent = "✨ ¡El Cofre de la Sabiduría! ✨";
-        tituloTrivia.style.color = "#f1c40f";
-    } else {
-        tituloTrivia.textContent = "🚨 ¡Apareció un Bug Educativo! 🚨";
-        tituloTrivia.style.color = "#e74c3c";
-    }
-
-    const preguntaObj = preguntasNivel1[Math.floor(Math.random() * preguntasNivel1.length)];
-    document.getElementById('pregunta-texto').textContent = preguntaObj.q;
+    preguntaActualObj = preguntasNivel1[Math.floor(Math.random() * preguntasNivel1.length)];
+    document.getElementById('pregunta-texto').textContent = preguntaActualObj.q;
     const cont = document.getElementById('respuestas-container');
     cont.innerHTML = '';
     
-    preguntaObj.opciones.forEach((opcion, i) => {
+    preguntaActualObj.opciones.forEach((opcion, i) => {
         const btn = document.createElement('button');
         btn.classList.add('btn-respuesta');
         btn.textContent = opcion;
-        btn.onclick = () => procesarRespuesta(i === preguntaObj.correcta);
+        btn.onclick = () => procesarRespuesta(i === preguntaActualObj.correcta);
         cont.appendChild(btn);
     });
 }
 
 btnCofre.addEventListener('click', () => {
-    if(!juegoPausado) abrirModalPregunta('cofre');
+    if(!juegoPausado) abrirModalPregunta();
 });
 
 function procesarRespuesta(esCorrecta) {
     modalTrivia.classList.add('oculto');
-    juegoPausado = false; // BLINDAJE: SE DESPAUSA SÍ O SÍ
+    juegoPausado = false; 
 
-    if (tipoPreguntaActual === 'cofre') {
-        if (esCorrecta && jefeActivo) {
-            alert("¡Bug Arreglado! El escudo del Jefe se ha roto.");
-            jefeActivo.tieneEscudo = false;
-            jefeActivo.visual.querySelector('.imagen-personaje').classList.remove('escudo-activo');
-            btnCofre.classList.add('oculto'); 
-        } else if (jefeActivo) {
-            alert("¡Fallaste! El Cofre tardará 3 segundos en recargarse.");
-            btnCofre.style.pointerEvents = 'none';
-            btnCofre.style.opacity = '0.5';
-            btnCofre.querySelector('.powerup-text').textContent = "Cargando...";
-            setTimeout(() => {
-                if (jefeActivo) { 
-                    btnCofre.style.pointerEvents = 'auto';
-                    btnCofre.style.opacity = '1';
-                    btnCofre.querySelector('.powerup-text').textContent = "¡Cofre!";
-                }
-            }, 3000); 
-        }
-    } 
-    else if (tipoPreguntaActual === 'cortafuegos' && enemigoEnPuerta) {
-        if (esCorrecta) {
-            alert("¡CORTAFUEGOS ACTIVADO! El enemigo ha sido desintegrado y absorbiste su energía.");
-            enemigoEnPuerta.vida = 0; 
-            magicEnergy = Math.min(20, magicEnergy + 2); // Premio extra
-        } else {
-            alert("¡ERROR DE CORTAFUEGOS! El Bug llega al Servidor.");
-            baseHealth -= enemigoEnPuerta.dano;
-            enemigoEnPuerta.vida = 0; 
-        }
-        actualizarInterfaz();
-        enemigoEnPuerta = null;
+    if (esCorrecta && jefeActivo) {
+        alert("¡Escudo Roto! ¡Correcto! " + preguntaActualObj.mensaje);
+        jefeActivo.tieneEscudo = false;
+        jefeActivo.visual.querySelector('.imagen-personaje').classList.remove('escudo-activo');
+        btnCofre.classList.add('oculto'); 
+    } else if (jefeActivo) {
+        alert("¡Respuesta incorrecta! Intenta de nuevo en 3 segundos.");
+        btnCofre.style.pointerEvents = 'none';
+        btnCofre.style.opacity = '0.5';
+        btnCofre.querySelector('.powerup-text').textContent = "Cargando...";
+        setTimeout(() => {
+            if (jefeActivo) { 
+                btnCofre.style.pointerEvents = 'auto';
+                btnCofre.style.opacity = '1';
+                btnCofre.querySelector('.powerup-text').textContent = "¡Trivia de Poder!";
+            }
+        }, 3000); 
     }
     
     requestAnimationFrame(gameLoop);
 }
 
-// --- BUCLE PRINCIPAL (Blindado) ---
+// --- BUCLE PRINCIPAL ---
 function gameLoop() {
-    if (juegoPausado || !juegoIniciado) return; // Si está en trivia, se para aquí.
+    if (juegoPausado || !juegoIniciado) return; 
     frames++;
     
-    // Energía pasiva: 1 cada 3 segundos aprox
     if (frames % 180 === 0 && magicEnergy < 20) { magicEnergy++; actualizarInterfaz(); }
 
-    // Enemigos normales salen SIEMPRE hasta que el jefe muera
     if (!jefeDerrotado && frames % 180 === 0) spawnEnemigo(false);
     
-    // El Jefe sale al minuto exacto (frame 3600)
     if (frames === TIEMPO_JEFE) spawnEnemigo(true);
 
     [...guardianesActivos, ...enemigosActivos].forEach(entidad => {
@@ -249,7 +220,6 @@ function gameLoop() {
         if (g.vida <= 0) { g.visual.remove(); guardianesActivos.splice(i, 1); }
     });
 
-    // Lógica de Enemigos
     for (let i = enemigosActivos.length - 1; i >= 0; i--) {
         let e = enemigosActivos[i];
         let enCombate = false;
@@ -260,24 +230,15 @@ function gameLoop() {
 
         if (!enCombate) e.x -= e.vel;
 
-        // Choque contra la base (PODADORAS)
-        if (e.x <= 0) { 
-            if (cortafuegos[e.lane - 1] && !e.esJefe) {
-                cortafuegos[e.lane - 1] = false; 
-                document.getElementById(`cf-${e.lane}`).classList.add('gastado'); 
-                enemigoEnPuerta = e;
-                abrirModalPregunta('cortafuegos');
-                return; // PAUSA EL LOOP AQUÍ para que respondas
-            } else {
-                baseHealth -= e.dano; 
-                e.vida = 0; 
-                actualizarInterfaz(); 
-            }
+        // Choque contra la base (LIMITE_BASE)
+        if (e.x <= LIMITE_BASE) { 
+            baseHealth -= e.dano; 
+            e.vida = 0; 
+            actualizarInterfaz(); 
         }
         
         if (e.vida <= 0) {
-            // Recompensa de energía (absorbes su rastro si lo mataste tú)
-            if (e.x > 0) { 
+            if (e.x > LIMITE_BASE) { 
                 magicEnergy = Math.min(20, magicEnergy + 2);
                 actualizarInterfaz();
             }
@@ -292,7 +253,6 @@ function gameLoop() {
         }
     }
 
-    // Condiciones Finales
     if (baseHealth <= 0) {
         alert("¡Tu servidor cayó! Game Over."); location.reload();
     } else if (jefeDerrotado && enemigosActivos.length === 0) {
