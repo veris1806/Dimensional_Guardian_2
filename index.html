@@ -17,7 +17,6 @@
 
     <header id="hud">
       <div class="stat">Tu Fortaleza: <span id="base-health">100</span> ❤️</div>
-      <div class="stat">Base Enemiga: <span id="enemy-base-health">200</span> 👿</div>
       <div class="stat">Energía: <span id="magic-energy">10</span> ⚡</div>
       
       <button id="cofre-btn" class="oculto">
@@ -27,9 +26,15 @@
     </header>
 
     <main id="lanes-container">
-      <div class="lane" id="lane-1"></div>
-      <div class="lane" id="lane-2"></div>
-      <div class="lane" id="lane-3"></div>
+      <div class="lane" id="lane-1">
+        <div class="cortafuegos-visual" id="cf-1">🔥 Cortafuegos Activo</div>
+      </div>
+      <div class="lane" id="lane-2">
+        <div class="cortafuegos-visual" id="cf-2">🔥 Cortafuegos Activo</div>
+      </div>
+      <div class="lane" id="lane-3">
+        <div class="cortafuegos-visual" id="cf-3">🔥 Cortafuegos Activo</div>
+      </div>
     </main>
 
     <footer id="selection-bar">
@@ -56,7 +61,7 @@
 
     <div id="trivia-modal" class="oculto">
       <div class="trivia-content">
-        <h2>✨ ¡El Cofre de la Sabiduría! ✨</h2>
+        <h2 id="trivia-titulo">✨ ¡El Cofre de la Sabiduría! ✨</h2>
         <p id="pregunta-texto">¿Pregunta?</p>
         <div id="respuestas-container"></div>
       </div>
