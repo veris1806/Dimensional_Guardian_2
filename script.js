@@ -1,4 +1,4 @@
-// --- CONFIGURACIÓN DE TROPAS ---
+// --- CONFIGURACIÓN DE TROPAS (Nuevos nombres IT) ---
 const dicG = {
     tanque:  { costo: 3, vida: 300, dano: 10, vel: 0.5 },
     arquero: { costo: 4, vida: 100, dano: 25, vel: 1.0 },
@@ -6,33 +6,31 @@ const dicG = {
     ninja:   { costo: 6, vida: 150, dano: 60, vel: 1.5 } 
 };
 
-// --- PREGUNTAS ---
+// --- PREGUNTAS (Adaptadas a Ciberseguridad/IT) ---
 const preguntasNivel1 = [
-    { q: "Un duende te ofrece un mapa del tesoro, pero pide la llave de tu fortaleza por 'solo un minuto'. ¿Qué haces?", opciones: ["Le doy la llave rápido", "Lo ignoro, es una trampa", "Le doy una copia mágica"], correcta: 1 },
-    { q: "El herrero te regala una espada gratis, pero esta te obliga a decirle a quién vas a visitar. ¿Qué haces?", opciones: ["La uso, ¡es gratis!", "La destruyo, no respeto privacidad", "Se la doy a mi enemigo"], correcta: 1 },
-    { q: "Encuentras un pergamino tirado que dice 'Hechizos_Infinitos.exe'. ¿Qué haces?", opciones: ["Lo abro inmediatamente", "Lo quemo, es un virus mágico", "Se lo leo a mis tropas"], correcta: 1 },
-    { q: "Un cuervo te pide tu 'Palabra Secreta' para entregarte un paquete del rey...", opciones: ["Le doy mi palabra secreta", "Le doy una palabra falsa", "Me niego, el rey no pide eso"], correcta: 2 }
+    { q: "En CSS, ¿cómo se selecciona un ID?", opciones: [".nombre", "*nombre", "#nombre"], correcta: 2 },
+    { q: "Un duende te ofrece un mapa, pero pide la contraseña de tu castillo...", opciones: ["Se la doy rápido", "Le doy una contraseña falsa", "Me niego, es phishing"], correcta: 2 },
+    { q: "Te llega un correo urgente de 'Net-flix-Soporte.xyz' pidiendo tu tarjeta...", opciones: ["Es una estafa, lo borro", "Actualizo mis datos", "Lo reenvío a mis amigos"], correcta: 0 },
+    { q: "Encuentras un pergamino que dice 'Instalar_Hechizos.exe' tirado...", opciones: ["Lo abro, ¡magia!", "Lo quemo, es malware", "Se lo leo a mis tropas"], correcta: 1 }
 ];
 
 // --- VARIABLES GLOBALES ---
 let baseHealth = 100;
 let magicEnergy = 10;
 let frames = 0;
-let juegoPausado = true; 
+let juegoPausado = true; // Empieza pausado por la pantalla de título
 let juegoIniciado = false;
 let seleccionado = null;
 let guardianesActivos = [];
 let enemigosActivos = [];
 let jefeActivo = null; 
-let jefeYaSalio = false;
 let jefeDerrotado = false;
 const ANCHO_VIRTUAL = 1000;
 
-// EL TIEMPO DEL JEFE
-// Cambia esto a 3600 (1 minuto) cuando vayas a presentar el juego. Ahorita está en 1200 (20 segs) para probar.
+// EL TIEMPO DEL JEFE (Ajustado a 20 segs para probar rápido. Ponlo en 3600 para el juego real)
 const TIEMPO_JEFE = 1200; 
 
-// SISTEMA CORTAFUEGOS (1 por carril)
+// SISTEMA CORTAFUEGOS (Podadoras tácticas)
 let cortafuegos = [true, true, true]; 
 let enemigoEnPuerta = null; 
 let tipoPreguntaActual = ""; 
@@ -61,7 +59,7 @@ function actualizarInterfaz() {
     });
 }
 
-// --- CINEMÁTICA DE INICIO ---
+// --- CINEMÁTICA DE INICIO (Intacta) ---
 setTimeout(() => {
     pantallaTitulo.style.opacity = '0'; 
     setTimeout(() => {
@@ -69,11 +67,11 @@ setTimeout(() => {
         juegoPausado = false;
         juegoIniciado = true;
         actualizarInterfaz();
-        requestAnimationFrame(gameLoop); 
+        requestAnimationFrame(gameLoop); // Arranca el juego
     }, 800);
-}, 3000);
+}, 3000); // 3 segundos de espera
 
-// --- INVOCACIÓN DE TROPAS ---
+// --- INVOCACIÓN DE TROPAS (Arreglada) ---
 botones.forEach(btn => {
     btn.addEventListener('click', () => {
         if (btn.classList.contains('disabled') || juegoPausado || !juegoIniciado) return;
@@ -138,22 +136,21 @@ function spawnEnemigo(esJefe = false) {
     
     if (esJefe) {
         jefeActivo = enemigoObj;
-        jefeYaSalio = true;
         btnCofre.classList.remove('oculto');
     }
 }
 
-// --- SISTEMA DE PREGUNTAS (COFRE Y CORTAFUEGOS) ---
+// --- SISTEMA DE PREGUNTAS (Cofre y Cortafuegos) ---
 function abrirModalPregunta(tipo) {
     tipoPreguntaActual = tipo;
-    juegoPausado = true;
+    juegoPausado = true; // PAUSA EL JUEGO
     modalTrivia.classList.remove('oculto');
     
     if(tipo === 'cofre') {
         tituloTrivia.textContent = "✨ ¡El Cofre de la Sabiduría! ✨";
         tituloTrivia.style.color = "#f1c40f";
     } else {
-        tituloTrivia.textContent = "🚨 ¡CORTAFUEGOS DE EMERGENCIA! 🚨";
+        tituloTrivia.textContent = "🚨 ¡Apareció un Bug Educativo! 🚨";
         tituloTrivia.style.color = "#e74c3c";
     }
 
@@ -177,11 +174,11 @@ btnCofre.addEventListener('click', () => {
 
 function procesarRespuesta(esCorrecta) {
     modalTrivia.classList.add('oculto');
-    juegoPausado = false;
+    juegoPausado = false; // BLINDAJE: SE DESPAUSA SÍ O SÍ
 
     if (tipoPreguntaActual === 'cofre') {
         if (esCorrecta && jefeActivo) {
-            alert("¡Respuesta Correcta! El escudo del Jefe se ha roto.");
+            alert("¡Bug Arreglado! El escudo del Jefe se ha roto.");
             jefeActivo.tieneEscudo = false;
             jefeActivo.visual.querySelector('.imagen-personaje').classList.remove('escudo-activo');
             btnCofre.classList.add('oculto'); 
@@ -203,9 +200,9 @@ function procesarRespuesta(esCorrecta) {
         if (esCorrecta) {
             alert("¡CORTAFUEGOS ACTIVADO! El enemigo ha sido desintegrado y absorbiste su energía.");
             enemigoEnPuerta.vida = 0; 
-            magicEnergy = Math.min(20, magicEnergy + 2); // Premio extra por acertar
+            magicEnergy = Math.min(20, magicEnergy + 2); // Premio extra
         } else {
-            alert("¡ERROR DE CORTAFUEGOS! La base recibe daño directo.");
+            alert("¡ERROR DE CORTAFUEGOS! El Bug llega al Servidor.");
             baseHealth -= enemigoEnPuerta.dano;
             enemigoEnPuerta.vida = 0; 
         }
@@ -216,26 +213,24 @@ function procesarRespuesta(esCorrecta) {
     requestAnimationFrame(gameLoop);
 }
 
-// --- BUCLE PRINCIPAL ---
+// --- BUCLE PRINCIPAL (Blindado) ---
 function gameLoop() {
-    if (juegoPausado || !juegoIniciado) return;
+    if (juegoPausado || !juegoIniciado) return; // Si está en trivia, se para aquí.
     frames++;
     
-    // Energía pasiva: 1 punto cada 3 segundos aprox (180 frames)
+    // Energía pasiva: 1 cada 3 segundos aprox
     if (frames % 180 === 0 && magicEnergy < 20) { magicEnergy++; actualizarInterfaz(); }
 
-    // Generar enemigos constantes (Incluso si el jefe está)
+    // Enemigos normales salen SIEMPRE hasta que el jefe muera
     if (!jefeDerrotado && frames % 180 === 0) spawnEnemigo(false);
     
-    // Generar al Jefe
-    if (frames === TIEMPO_JEFE && !jefeYaSalio) spawnEnemigo(true);
+    // El Jefe sale al minuto exacto (frame 3600)
+    if (frames === TIEMPO_JEFE) spawnEnemigo(true);
 
-    // Mover visualmente a todos
     [...guardianesActivos, ...enemigosActivos].forEach(entidad => {
         entidad.visual.style.left = (entidad.x / ANCHO_VIRTUAL * 100) + '%';
     });
 
-    // Lógica de Guardianes
     guardianesActivos.forEach((g, i) => {
         let enCombate = false;
         enemigosActivos.forEach(e => {
@@ -265,11 +260,11 @@ function gameLoop() {
 
         if (!enCombate) e.x -= e.vel;
 
-        // Choque contra tu base
+        // Choque contra la base (PODADORAS)
         if (e.x <= 0) { 
             if (cortafuegos[e.lane - 1] && !e.esJefe) {
                 cortafuegos[e.lane - 1] = false; 
-                document.getElementById(`cf-${e.lane}`).classList.add('gastado'); // Oculta el letrero visual
+                document.getElementById(`cf-${e.lane}`).classList.add('gastado'); 
                 enemigoEnPuerta = e;
                 abrirModalPregunta('cortafuegos');
                 return; // PAUSA EL LOOP AQUÍ para que respondas
@@ -280,7 +275,6 @@ function gameLoop() {
             }
         }
         
-        // Muerte del enemigo
         if (e.vida <= 0) {
             // Recompensa de energía (absorbes su rastro si lo mataste tú)
             if (e.x > 0) { 
@@ -300,9 +294,9 @@ function gameLoop() {
 
     // Condiciones Finales
     if (baseHealth <= 0) {
-        alert("¡Tu fortaleza cayó! Game Over."); location.reload();
+        alert("¡Tu servidor cayó! Game Over."); location.reload();
     } else if (jefeDerrotado && enemigosActivos.length === 0) {
-        alert("¡Sobreviviste a la oleada y derrotaste al Jefe! NIVEL COMPLETADO."); location.reload(); 
+        alert("¡Sobreviviste a la oleada de Bugs y derrotaste al Jefe! NIVEL COMPLETADO."); location.reload(); 
     } else {
         requestAnimationFrame(gameLoop);
     }
