@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Devs vs Bugs - Nivel 1</title>
+  <title>Dimensional Guardians - Nivel 1</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="game-container">
     <header id="hud">
-      <div class="stat">Servidor: <span id="base-health">100</span>% 💻</div>
-      <div class="stat">Nivel: <span id="wave-number">1</span> 🌐</div>
-      <div class="stat">Café: <span id="magic-energy">5</span> ☕</div>
+      <div class="stat">Tu Fortaleza: <span id="base-health">100</span> ❤️</div>
+      <div class="stat">Base Enemiga: <span id="enemy-base-health">200</span> 👿</div>
+      <div class="stat">Energía: <span id="magic-energy">10</span> ⚡</div>
+      
+      <button id="cofre-btn" class="oculto">
+        <span class="powerup-icon">🧰</span>
+        <span class="powerup-text">¡Cofre!</span>
+      </button>
     </header>
 
     <main id="lanes-container">
@@ -21,25 +26,30 @@
     </main>
 
     <footer id="selection-bar">
-      <button class="guardian-btn" data-type="html">
-        <span class="btn-name">HTML</span>
-        <span class="cost">3 ☕</span>
+      <button class="guardian-btn" data-type="tanque">
+        <span class="btn-name">Guerrero</span>
+        <span class="cost">3 ⚡</span>
       </button>
 
-      <button class="guardian-btn" data-type="css">
-        <span class="btn-name">CSS</span>
-        <span class="cost">4 ☕</span>
+      <button class="guardian-btn" data-type="arquero">
+        <span class="btn-name">Arquero</span>
+        <span class="cost">4 ⚡</span>
       </button>
 
-      <button class="guardian-btn" data-type="js">
-        <span class="btn-name">JS</span>
-        <span class="cost">5 ☕</span>
+      <button class="guardian-btn" data-type="mago">
+        <span class="btn-name">Mago</span>
+        <span class="cost">5 ⚡</span>
+      </button>
+
+      <button class="guardian-btn" data-type="ninja">
+        <span class="btn-name">Ninja</span>
+        <span class="cost">6 ⚡</span>
       </button>
     </footer>
 
     <div id="trivia-modal" class="oculto">
       <div class="trivia-content">
-        <h2>¡Apareció un Bug Educativo!</h2>
+        <h2>✨ ¡El Cofre de la Sabiduría! ✨</h2>
         <p id="pregunta-texto">¿Pregunta?</p>
         <div id="respuestas-container"></div>
       </div>
