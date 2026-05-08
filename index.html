@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dimensional Guardians - Nivel 1</title>
+  <title>Devs vs Bugs - Guerra Táctica</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,12 +16,12 @@
     </div>
 
     <header id="hud">
-      <div class="stat">Tu Fortaleza: <span id="base-health">100</span> ❤️</div>
-      <div class="stat">Energía: <span id="magic-energy">10</span> ⚡</div>
+      <div class="stat">Servidor: <span id="base-health">100</span> ❤️</div>
+      <div class="stat">Café (Energía): <span id="magic-energy">10</span> ☕</div>
       
       <button id="cofre-btn" class="oculto">
         <span class="powerup-icon">🧰</span>
-        <span class="powerup-text">¡Cofre!</span>
+        <span class="powerup-text">¡Trivia de Poder!</span>
       </button>
     </header>
 
@@ -39,29 +39,29 @@
 
     <footer id="selection-bar">
       <button class="guardian-btn" data-type="tanque">
-        <span class="btn-name">Guerrero</span>
-        <span class="cost">3 ⚡</span>
+        <span class="btn-name">Tanque</span>
+        <span class="cost">3 ☕</span>
       </button>
 
       <button class="guardian-btn" data-type="arquero">
         <span class="btn-name">Arquero</span>
-        <span class="cost">4 ⚡</span>
+        <span class="cost">4 ☕</span>
       </button>
 
       <button class="guardian-btn" data-type="mago">
         <span class="btn-name">Mago</span>
-        <span class="cost">5 ⚡</span>
+        <span class="cost">5 ☕</span>
       </button>
 
       <button class="guardian-btn" data-type="ninja">
         <span class="btn-name">Ninja</span>
-        <span class="cost">6 ⚡</span>
+        <span class="cost">6 ☕</span>
       </button>
     </footer>
 
     <div id="trivia-modal" class="oculto">
       <div class="trivia-content">
-        <h2 id="trivia-titulo">✨ ¡El Cofre de la Sabiduría! ✨</h2>
+        <h2 id="trivia-titulo">¡Apareció un Bug Educativo!</h2>
         <p id="pregunta-texto">¿Pregunta?</p>
         <div id="respuestas-container"></div>
       </div>
