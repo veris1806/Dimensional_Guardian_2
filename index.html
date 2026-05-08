@@ -1,84 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Devs vs Bugs - Guerra Táctica</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ciber-Defensores: El Valle de los Troyanos</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="rotate-device">🔄 Por favor, gira tu dispositivo en horizontal para jugar.</div>
 
-  <div id="rotate-device">
-    📱<br><br>
-    Por favor, gira tu dispositivo en horizontal para poder jugar.
-  </div>
+    <div id="game-container">
+        <div id="level-title-screen">
+            <h1>NIVEL 1</h1>
+            <h2>El Valle de los Troyanos</h2>
+            <p>Prepárate para la batalla...</p>
+        </div>
 
-  <div id="game-container">
-    
-    <div id="level-title-screen">
-      <h1 class="level-title">NIVEL 1</h1>
-      <h2 class="level-subtitle">El Valle de los Troyanos</h2>
-      <p>Prepárate para la batalla...</p>
+        <div id="hud">
+            <div>Servidor: <span id="base-health">100</span> ❤️</div>
+            <div>Energía: <span id="magic-energy">10</span> ⚡</div>
+        </div>
+
+        <div id="lanes-container">
+            <div id="base-zone"><div style="color:white; font-size:10px; padding:5px;">SERVIDOR</div></div>
+            <div class="lane" data-lane="1"></div>
+            <div class="lane" data-lane="2"></div>
+            <div class="lane" data-lane="3"></div>
+            <button id="cofre-btn" class="oculto">🎁 ¡Trivia de Poder!</button>
+        </div>
+
+        <div id="selection-bar">
+            <div class="guardian-btn" data-type="tanque">
+                <span>Tanque</span>
+                <span>3 ⚡</span>
+            </div>
+            <div class="guardian-btn" data-type="arquero">
+                <span>Arquero</span>
+                <span>4 ⚡</span>
+            </div>
+            <div class="guardian-btn" data-type="mago">
+                <span>Mago</span>
+                <span>5 ⚡</span>
+            </div>
+            <div class="guardian-btn" data-type="ninja">
+                <span>Ninja</span>
+                <span>6 ⚡</span>
+            </div>
+        </div>
+
+        <div id="trivia-modal" class="oculto">
+            <div class="trivia-content">
+                <h3 id="pregunta-texto">¿?</h3>
+                <div id="respuestas-container"></div>
+            </div>
+        </div>
+
+        <div id="custom-alert" class="oculto">
+            <div id="alert-box" class="alert-content">
+                <h2 id="alert-title"></h2>
+                <p id="alert-text"></p>
+                <button id="alert-btn">Continuar</button>
+            </div>
+        </div>
     </div>
 
-    <header id="hud">
-      <div class="stat">Servidor: <span id="base-health">100</span> ❤️</div>
-      <div class="stat">Energía: <span id="magic-energy">10</span> ⚡</div>
-      
-      <button id="cofre-btn" class="oculto">
-        <span class="powerup-icon">🧰</span>
-        <span class="powerup-text">¡Trivia de Poder!</span>
-      </button>
-    </header>
-
-    <main id="lanes-container">
-      <div id="base-zone">SERVIDOR</div>
-      
-      <div class="lane" id="lane-1"></div>
-      <div class="lane" id="lane-2"></div>
-      <div class="lane" id="lane-3"></div>
-    </main>
-
-    <footer id="selection-bar">
-      <button class="guardian-btn" data-type="tanque">
-        <span class="btn-name">Tanque</span>
-        <span class="cost">3 ⚡</span>
-      </button>
-
-      <button class="guardian-btn" data-type="arquero">
-        <span class="btn-name">Arquero</span>
-        <span class="cost">4 ⚡</span>
-      </button>
-
-      <button class="guardian-btn" data-type="mago">
-        <span class="btn-name">Mago</span>
-        <span class="cost">5 ⚡</span>
-      </button>
-
-      <button class="guardian-btn" data-type="ninja">
-        <span class="btn-name">Ninja</span>
-        <span class="cost">6 ⚡</span>
-      </button>
-    </footer>
-
-    <div id="trivia-modal" class="oculto">
-      <div class="trivia-content">
-        <h2 id="trivia-titulo">✨ ¡El Cofre de la Sabiduría! ✨</h2>
-        <p id="pregunta-texto">¿Pregunta?</p>
-        <div id="respuestas-container"></div>
-      </div>
-    </div>
-
-    <div id="custom-alert" class="oculto">
-      <div class="alert-content" id="alert-box">
-        <h2 id="alert-title">¡Atención!</h2>
-        <p id="alert-text">Mensaje aquí</p>
-        <button id="alert-btn">Aceptar</button>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
