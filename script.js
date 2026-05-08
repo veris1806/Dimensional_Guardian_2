@@ -26,12 +26,17 @@ let enemigosActivos = [];
 let jefeActivo = null; 
 let jefeDerrotado = false;
 const ANCHO_VIRTUAL = 1000;
-const LIMITE_BASE = 120; // 12% del ancho virtual, donde está la "Fortaleza"
+const LIMITE_BASE = 120; // 12% del ancho virtual (Fortaleza)
 
-// EL TIEMPO DEL JEFE (Ajustado a 20 segs para probar. Cambia a 3600 para 1 minuto)
-const TIEMPO_JEFE = 1200; 
-
+// Variables de la Trivia del Jefe
+let preguntasRestantes = [];
+let jefePreguntasCorrectas = 0;
+let jefePreguntasIncorrectas = 0;
 let preguntaActualObj = null;
+let callbackAlerta = null; 
+
+// EL TIEMPO DEL JEFE (20 segundos para probar, luego súbelo a 1200 o más)
+const TIEMPO_JEFE = 1200; 
 
 // --- ELEMENTOS DOM ---
 const uiVida = document.getElementById('base-health');
@@ -42,19 +47,46 @@ const modalTrivia = document.getElementById('trivia-modal');
 const btnCofre = document.getElementById('cofre-btn');
 const pantallaTitulo = document.getElementById('level-title-screen');
 
+// Elementos del Modal de Alerta
+const customAlert = document.getElementById('custom-alert');
+const alertBox = document.getElementById('alert-box');
+const alertTitle = document.getElementById('alert-title');
+const alertText = document.getElementById('alert-text');
+const alertBtn = document.getElementById('alert-btn');
+
 function actualizarInterfaz() {
     uiVida.textContent = Math.floor(baseHealth);
     uiEnergia.textContent = magicEnergy;
-
     botones.forEach(btn => {
         const tipo = btn.getAttribute('data-type');
-        if (magicEnergy >= dicG[tipo].costo) {
-            btn.classList.remove('disabled');
-        } else {
-            btn.classList.add('disabled');
-        }
+        btn.classList.toggle('disabled', magicEnergy < dicG[tipo].costo);
     });
 }
+
+// --- SISTEMA DE ALERTA PERSONALIZADA ---
+function mostrarAlerta(titulo, mensaje, esError, callback) {
+    alertTitle.textContent = titulo;
+    alertText.textContent = mensaje;
+    
+    if (esError) {
+        alertBox.classList.add('error');
+        alertTitle.className = 'rojo';
+    } else {
+        alertBox.classList.remove('error');
+        alertTitle.className = 'verde';
+    }
+
+    callbackAlerta = callback;
+    customAlert.classList.remove('oculto');
+}
+
+alertBtn.addEventListener('click', () => {
+    customAlert.classList.add('oculto');
+    if (callbackAlerta) {
+        callbackAlerta(); 
+        callbackAlerta = null;
+    }
+});
 
 // --- CINEMÁTICA DE INICIO ---
 setTimeout(() => {
@@ -86,15 +118,11 @@ carriles.forEach((lane, index) => {
         
         if (magicEnergy >= datos.costo) {
             magicEnergy -= datos.costo;
-            
-            const personajeObj = {
+            guardianesActivos.push({
                 visual: crearVisual(lane, true, false),
                 vida: datos.vida, vidaMax: datos.vida, dano: datos.dano, vel: datos.vel,
-                x: LIMITE_BASE, // Nacen justo en el borde de tu base
-                lane: index + 1, esGuardian: true
-            };
-
-            guardianesActivos.push(personajeObj);
+                x: LIMITE_BASE, lane: index + 1, esGuardian: true
+            });
             seleccionado = null;
             botones.forEach(b => b.classList.remove('selected'));
             carriles.forEach(l => l.classList.remove('selectable'));
@@ -107,7 +135,7 @@ function crearVisual(padre, esGuardian, esJefe) {
     const div = document.createElement('div');
     div.classList.add('entidad');
     let clasesAdicionales = esGuardian ? '' : 'enemigo-visual';
-    if (esJefe) clasesAdicionales += ' jefe-visual escudo-activo';
+    if (esJefe) clasesAdicionales += ' jefe-visual'; 
 
     div.innerHTML = `
         <div class="health-bar-container"><div class="health-bar-fill"></div></div>
@@ -124,26 +152,29 @@ function spawnEnemigo(esJefe = false) {
     
     const enemigoObj = {
         visual: crearVisual(padre, false, esJefe),
-        vida: esJefe ? 800 : 100, vidaMax: esJefe ? 800 : 100,
-        dano: esJefe ? 100 : 15, 
-        vel: esJefe ? 0.3 : 0.8,
-        x: ANCHO_VIRTUAL - 50, lane: carrilRandom + 1, esGuardian: false, tieneEscudo: esJefe, esJefe: esJefe
+        vida: esJefe ? 900 : 100, vidaMax: esJefe ? 900 : 100,
+        dano: esJefe ? 200 : 15, vel: esJefe ? 0.2 : 0.8,
+        x: ANCHO_VIRTUAL - 50, lane: carrilRandom + 1, esGuardian: false, esJefe: esJefe
     };
     
     enemigosActivos.push(enemigoObj);
     
     if (esJefe) {
         jefeActivo = enemigoObj;
-        btnCofre.classList.remove('oculto'); // Activa el cofre de trivia
+        jefePreguntasCorrectas = 0;
+        jefePreguntasIncorrectas = 0;
+        // Mezclamos las preguntas
+        preguntasRestantes = [...preguntasNivel1].sort(() => Math.random() - 0.5);
+        btnCofre.classList.remove('oculto'); 
     }
 }
 
-// --- SISTEMA DE TRIVIA (Solo Cofre) ---
+// --- SISTEMA DE TRIVIA DEL JEFE ---
 function abrirModalPregunta() {
     juegoPausado = true; 
     modalTrivia.classList.remove('oculto');
     
-    preguntaActualObj = preguntasNivel1[Math.floor(Math.random() * preguntasNivel1.length)];
+    preguntaActualObj = preguntasRestantes.pop();
     document.getElementById('pregunta-texto').textContent = preguntaActualObj.q;
     const cont = document.getElementById('respuestas-container');
     cont.innerHTML = '';
@@ -163,28 +194,44 @@ btnCofre.addEventListener('click', () => {
 
 function procesarRespuesta(esCorrecta) {
     modalTrivia.classList.add('oculto');
-    juegoPausado = false; 
+    btnCofre.classList.add('oculto'); 
 
-    if (esCorrecta && jefeActivo) {
-        alert("¡Escudo Roto! ¡Correcto! " + preguntaActualObj.mensaje);
-        jefeActivo.tieneEscudo = false;
-        jefeActivo.visual.querySelector('.imagen-personaje').classList.remove('escudo-activo');
-        btnCofre.classList.add('oculto'); 
-    } else if (jefeActivo) {
-        alert("¡Respuesta incorrecta! Intenta de nuevo en 3 segundos.");
-        btnCofre.style.pointerEvents = 'none';
-        btnCofre.style.opacity = '0.5';
-        btnCofre.querySelector('.powerup-text').textContent = "Cargando...";
-        setTimeout(() => {
-            if (jefeActivo) { 
-                btnCofre.style.pointerEvents = 'auto';
-                btnCofre.style.opacity = '1';
-                btnCofre.querySelector('.powerup-text').textContent = "¡Trivia de Poder!";
-            }
-        }, 3000); 
+    if (esCorrecta) {
+        jefePreguntasCorrectas++;
+        if (jefeActivo) {
+            jefeActivo.vida -= (jefeActivo.vidaMax / 3);
+            jefeActivo.visual.querySelector('.health-bar-fill').style.width = Math.max(0, (jefeActivo.vida / jefeActivo.vidaMax) * 100) + "%";
+        }
+
+        if (jefePreguntasCorrectas >= 3) {
+            if(jefeActivo) jefeActivo.vida = 0; 
+            mostrarAlerta("✨ ¡Impacto Crítico!", "¡Correcto! " + preguntaActualObj.mensaje + " ¡Has destruido al troyano!", false, () => {
+                juegoPausado = false;
+                requestAnimationFrame(gameLoop);
+            });
+        } else {
+            mostrarAlerta("✅ ¡Ataque Exitoso!", "¡Correcto! " + preguntaActualObj.mensaje + ` (Progreso: ${jefePreguntasCorrectas}/3). Prepárate para el siguiente ataque.`, false, () => {
+                juegoPausado = false;
+                requestAnimationFrame(gameLoop);
+                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 4000);
+            });
+        }
+
+    } else {
+        jefePreguntasIncorrectas++;
+        
+        if (jefePreguntasIncorrectas >= 2) {
+            mostrarAlerta("💥 ¡Brecha de Seguridad Crítica!", "Has cometido demasiados errores. Los Troyanos robaron tus credenciales y tomaron el control total del servidor.", true, () => {
+                location.reload(); 
+            });
+        } else {
+            mostrarAlerta("❌ ¡Ataque Fallido!", "Esa no es la respuesta. El Jefe ha bloqueado tu ataque. ¡Cuidado! Un error más y perderás el servidor.", true, () => {
+                juegoPausado = false;
+                requestAnimationFrame(gameLoop);
+                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 4000);
+            });
+        }
     }
-    
-    requestAnimationFrame(gameLoop);
 }
 
 // --- BUCLE PRINCIPAL ---
@@ -207,7 +254,7 @@ function gameLoop() {
         enemigosActivos.forEach(e => {
             if (g.lane === e.lane && Math.abs(g.x - e.x) < 50) {
                 enCombate = true;
-                e.vida -= (e.tieneEscudo ? (g.dano * 0.1) : g.dano) / 60; 
+                e.vida -= g.dano / 60; 
                 g.vida -= e.dano / 60;
                 e.visual.querySelector('.health-bar-fill').style.width = (e.vida / e.vidaMax) * 100 + "%";
                 g.visual.querySelector('.health-bar-fill').style.width = (g.vida / g.vidaMax) * 100 + "%";
@@ -230,7 +277,6 @@ function gameLoop() {
 
         if (!enCombate) e.x -= e.vel;
 
-        // Choque contra la base (LIMITE_BASE)
         if (e.x <= LIMITE_BASE) { 
             baseHealth -= e.dano; 
             e.vida = 0; 
@@ -254,9 +300,15 @@ function gameLoop() {
     }
 
     if (baseHealth <= 0) {
-        alert("¡Tu servidor cayó! Game Over."); location.reload();
+        juegoPausado = true;
+        mostrarAlerta("💀 Servidor Caído", "¡Game Over! Los enemigos han destruido tus defensas.", true, () => {
+            location.reload();
+        });
     } else if (jefeDerrotado && enemigosActivos.length === 0) {
-        alert("¡Sobreviviste a la oleada de Bugs y derrotaste al Jefe! NIVEL COMPLETADO."); location.reload(); 
+        juegoPausado = true;
+        mostrarAlerta("🏆 ¡Victoria!", "¡Sobreviviste a la oleada y limpiaste el código del Troyano! Nivel Completado.", false, () => {
+            location.reload(); 
+        });
     } else {
         requestAnimationFrame(gameLoop);
     }
