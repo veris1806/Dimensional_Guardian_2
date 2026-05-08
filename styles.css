@@ -82,10 +82,7 @@ body {
   transform: scale(1.1);
 }
 
-.guardian-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.guardian-btn.disabled { opacity: 0.5; cursor: not-allowed; }
 
 .cost { font-size: clamp(0.8rem, 1.5vw, 1rem); color: #f1c40f; margin-top: 5px; }
 .btn-name { font-weight: bold; font-size: clamp(0.9rem, 1.8vw, 1.2rem); }
@@ -99,6 +96,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: filter 0.3s;
 }
 
 .imagen-personaje {
@@ -107,7 +105,16 @@ body {
   background-color: #3498db; 
   border-radius: 10px;
 }
+
 .enemigo-visual { background-color: #e74c3c; } 
+.jefe-visual { width: 120%; height: 120%; background-color: #8e44ad; }
+
+/* EL ESCUDO DEL JEFE */
+.escudo-activo {
+  border: 4px solid #00ffff;
+  box-shadow: 0 0 15px #00ffff;
+  border-radius: 15px;
+}
 
 .health-bar-container {
   width: 100%;
@@ -154,3 +161,25 @@ body {
   font-size: 1.1rem;
 }
 .btn-respuesta:hover { background: #2ecc71; border-color: white; }
+
+/* BOTÓN DEL COFRE */
+#cofre-btn {
+  background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 5px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #121212;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(241, 196, 15, 0.9);
+  animation: latir 1s infinite alternate;
+}
+#cofre-btn.oculto { display: none; }
+
+@keyframes latir {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
