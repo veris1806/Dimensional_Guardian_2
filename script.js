@@ -22,7 +22,9 @@ let preguntaActualObj = null, callbackAlerta = null;
 
 const uiVida = document.getElementById('base-health'), uiEnergia = document.getElementById('magic-energy');
 const botones = document.querySelectorAll('.guardian-btn'), carriles = document.querySelectorAll('.lane');
-const modalTrivia = document.getElementById('trivia-modal'), btnCofre = document.getElementById('cofre-btn');
+const modalTrivia = document.getElementById('trivia-modal');
+// ELIMINADO EL COFRE-BTN DE JS
+
 const pantallaTitulo = document.getElementById('level-title-screen');
 const customAlert = document.getElementById('custom-alert'), alertBox = document.getElementById('alert-box');
 const alertTitle = document.getElementById('alert-title'), alertText = document.getElementById('alert-text'), alertBtn = document.getElementById('alert-btn');
@@ -97,7 +99,8 @@ function crearVisual(padre, esGuardian, esJefe, tipo = '') {
         <div class="health-bar-container"><div class="health-bar-fill"></div></div>
         <div class="imagen-personaje ${claseImagen}"></div>
     `;
-    if (esJefe) div.style.transform = "scale(2.5) translateY(-50%)";
+    // AJUSTE JEFES: Centrado con scale
+    if (esJefe) div.style.transform = "translateY(-50%) scale(2.5)"; 
     padre.appendChild(div);
     return div;
 }
@@ -115,12 +118,20 @@ function spawnEnemigo(esJefe = false) {
         jefeActivo = enemigoObj;
         jefePreguntasCorrectas = 0; jefePreguntasIncorrectas = 0;
         preguntasRestantes = [...preguntasNivel1].sort(() => Math.random() - 0.5);
-        btnCofre.classList.remove('oculto'); 
+        // CORRECCIÓN: Trivia automática al aparecer
+        setTimeout(() => { if(!juegoPausado) abrirModalPregunta(); }, 1000);
     }
 }
 
 function abrirModalPregunta() {
-    juegoPausado = true; modalTrivia.classList.remove('oculto');
+    juegoPausado = true; // Pausa el juego
+    modalTrivia.classList.remove('oculto');
+    
+    if (preguntasRestantes.length === 0) {
+        // Si se acaban las preguntas, el jefe gana por cansancio (o reiniciamos preguntas)
+        preguntasRestantes = [...preguntasNivel1].sort(() => Math.random() - 0.5);
+    }
+
     preguntaActualObj = preguntasRestantes.pop();
     document.getElementById('pregunta-texto').textContent = preguntaActualObj.q;
     const cont = document.getElementById('respuestas-container');
@@ -134,32 +145,41 @@ function abrirModalPregunta() {
     });
 }
 
-btnCofre.addEventListener('click', () => { if(!juegoPausado) abrirModalPregunta(); });
+// COFRE-BTN ADDEVENTLISTENER ELIMINADO
 
 function procesarRespuesta(esCorrecta) {
-    modalTrivia.classList.add('oculto'); btnCofre.classList.add('oculto'); 
+    modalTrivia.classList.add('oculto'); 
+    // CORRECCIÓN: Eliminado el btnCofre.classList.add('oculto');
+
     if (esCorrecta) {
         jefePreguntasCorrectas++;
         if (jefeActivo) jefeActivo.vida -= (jefeActivo.vidaMax / 3);
+        
         if (jefePreguntasCorrectas >= 3) {
             if(jefeActivo) jefeActivo.vida = 0; 
             mostrarAlerta("✨ ¡Impacto Crítico!", "¡Correcto! " + preguntaActualObj.mensaje, false, () => {
-                juegoPausado = false; requestAnimationFrame(gameLoop);
+                juegoPausado = false; // Reanuda
+                requestAnimationFrame(gameLoop);
             });
         } else {
-            mostrarAlerta("✅ ¡Ataque Exitoso!", "¡Correcto! (Progreso: " + jefePreguntasCorrectas + "/3).", false, () => {
-                juegoPausado = false; requestAnimationFrame(gameLoop);
-                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 3000);
+            // CORRECCIÓN: Letrero de éxito con reanudación y siguiente trivia programada
+            mostrarAlerta("✅ ¡Ataque Exitoso!", "¡Correcto! Prepárate para el siguiente contraataque (Progreso: " + jefePreguntasCorrectas + "/3).", false, () => {
+                juegoPausado = false; // Reanuda temporalmente
+                requestAnimationFrame(gameLoop);
+                // Programa la siguiente trivia inevitable en 4 segundos
+                setTimeout(() => { if (jefeActivo && !juegoPausado) abrirModalPregunta(); }, 4000);
             });
         }
     } else {
         jefePreguntasIncorrectas++;
         if (jefePreguntasIncorrectas >= 2) {
-            mostrarAlerta("💥 ¡Brecha Crítica!", "Los Troyanos vencieron.", true, () => location.reload());
+            mostrarAlerta("💥 ¡Brecha Crítica!", "Los Troyanos vencieron tus defensas por tus errores.", true, () => location.reload());
         } else {
-            mostrarAlerta("❌ ¡Ataque Fallido!", "Respuesta incorrecta.", true, () => {
-                juegoPausado = false; requestAnimationFrame(gameLoop);
-                setTimeout(() => { if (jefeActivo) btnCofre.classList.remove('oculto'); }, 3000);
+            mostrarAlerta("❌ ¡Ataque Fallido!", "Respuesta incorrecta. El Jefe bloqueó el ataque. ¡Un error más y perderás!", true, () => {
+                juegoPausado = false; // Reanuda temporalmente
+                requestAnimationFrame(gameLoop);
+                // Programa la siguiente trivia inevitable en 4 segundos
+                setTimeout(() => { if (jefeActivo && !juegoPausado) abrirModalPregunta(); }, 4000);
             });
         }
     }
@@ -193,14 +213,31 @@ function gameLoop() {
         let e = enemigosActivos[i], enC = false;
         guardianesActivos.forEach(g => { if (e.lane === g.lane && Math.abs(e.x - g.x) < 65) enC = true; });
         if (!enC) e.x -= e.vel;
-        if (e.x <= LIMITE_BASE) { baseHealth -= 0.2; actualizarInterfaz(); e.vida = 0; }
+        
+        // CORRECCIÓN: Daño a la base restaurado y funcional
+        if (e.x <= LIMITE_BASE) { 
+            baseHealth -= e.dano; // Aplica daño (15 o 40 si es jefe)
+            actualizarInterfaz(); 
+            e.vida = 0; // El enemigo se sacrifica
+        }
+        
         if (e.vida <= 0) {
-            if (e === jefeActivo) { jefeActivo = null; jefeDerrotado = true; btnCofre.classList.add('oculto'); }
+            if (e.x > LIMITE_BASE) { // Solo da energía si muere antes de la base
+                magicEnergy = Math.min(20, magicEnergy + 2);
+                actualizarInterfaz();
+            }
+            if (e === jefeActivo) { jefeActivo = null; jefeDerrotado = true; }
             e.visual.remove(); enemigosActivos.splice(i, 1);
         }
     }
 
-    if (baseHealth <= 0) { mostrarAlerta("💀 Servidor Caído", "Game Over.", true, () => location.reload()); }
-    else if (jefeDerrotado && enemigosActivos.length === 0) { mostrarAlerta("🏆 ¡Victoria!", "Nivel Completado.", false, () => location.reload()); }
+    if (baseHealth <= 0) {
+        juegoPausado = true; // Frena todo
+        mostrarAlerta("💀 Servidor Caído", "¡Game Over! Los Troyanos han destruido el servidor.", true, () => location.reload());
+    }
+    else if (jefeDerrotado && enemigosActivos.length === 0) {
+        juegoPausado = true; // Frena todo
+        mostrarAlerta("🏆 ¡Victoria!", "¡Nivel Completado exitosamente!", false, () => location.reload());
+    }
     else { requestAnimationFrame(gameLoop); }
 }
