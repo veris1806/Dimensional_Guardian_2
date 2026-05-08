@@ -6,7 +6,6 @@ const dicG = {
     ninja:   { costo: 6, vida: 150, dano: 60, vel: 1.5 } 
 };
 
-// --- TUS PREGUNTAS APROBADAS ---
 const preguntasNivel1 = [
     { q: 'Un duende te ofrece un programa llamado "Hack_Oro_Infinito.exe", pero te pide apagar los escudos de tu servidor para instalarlo. ¿Qué haces?', opciones: ["¡Lo instalo rápido, quiero oro!", "Lo rechazo, es una trampa.", "Lo instalo, pero solo un minuto."], correcta: 1, mensaje: 'Los programas piratas o "hacks" gratuitos suelen ocultar virus Troyanos.' },
     { q: 'Un guardia sin uniforme te pide la contraseña de tu base argumentando que necesita "revisar el sistema". ¿Qué haces?', opciones: ["¡No! Eres un impostor.", "Se la doy, parece urgente.", "Se la doy, pero luego la cambio."], correcta: 0, mensaje: 'El soporte técnico real nunca te pide tu contraseña.' },
@@ -14,7 +13,6 @@ const preguntasNivel1 = [
     { q: 'Te llega un pergamino mágico de un remitente desconocido que dice "Ábreme". ¿Qué haces?', opciones: ["Lo abro para ver qué dice.", "Lo destruyo, es un virus.", "Lo guardo para leerlo luego."], correcta: 1, mensaje: 'Archivos adjuntos peligrosos. Muchos virus se disfrazan así.' }
 ];
 
-// --- VARIABLES GLOBALES ---
 let baseHealth = 100, magicEnergy = 10, frames = 0, juegoPausado = true, juegoIniciado = false;
 let seleccionado = null, guardianesActivos = [], enemigosActivos = [], jefeActivo = null, jefeDerrotado = false;
 const ANCHO_VIRTUAL = 1000, LIMITE_BASE = 120, TIEMPO_JEFE = 1200;
@@ -99,7 +97,7 @@ function crearVisual(padre, esGuardian, esJefe, tipo = '') {
         <div class="health-bar-container"><div class="health-bar-fill"></div></div>
         <div class="imagen-personaje ${claseImagen}"></div>
     `;
-    if (esJefe) div.style.transform = "scale(2) translateY(-50%)";
+    if (esJefe) div.style.transform = "scale(2.5) translateY(-50%)";
     padre.appendChild(div);
     return div;
 }
@@ -184,7 +182,8 @@ function gameLoop() {
     guardianesActivos.forEach((g, i) => {
         let enC = false;
         enemigosActivos.forEach(e => {
-            if (g.lane === e.lane && Math.abs(g.x - e.x) < 50) {
+            // AJUSTE: Distancia de colisión aumentada para personajes más grandes
+            if (g.lane === e.lane && Math.abs(g.x - e.x) < 70) {
                 enC = true; e.vida -= g.dano / 60; g.vida -= e.dano / 60;
                 e.visual.querySelector('.health-bar-fill').style.width = (e.vida/e.vidaMax)*100 + "%";
                 g.visual.querySelector('.health-bar-fill').style.width = (g.vida/g.vidaMax)*100 + "%";
@@ -196,7 +195,7 @@ function gameLoop() {
 
     for (let i = enemigosActivos.length - 1; i >= 0; i--) {
         let e = enemigosActivos[i], enC = false;
-        guardianesActivos.forEach(g => { if (e.lane === g.lane && Math.abs(e.x - g.x) < 50) enC = true; });
+        guardianesActivos.forEach(g => { if (e.lane === g.lane && Math.abs(e.x - g.x) < 70) enC = true; });
         if (!enC) e.x -= e.vel;
         if (e.x <= LIMITE_BASE) { baseHealth -= 0.2; actualizarInterfaz(); e.vida = 0; }
         if (e.vida <= 0) {
